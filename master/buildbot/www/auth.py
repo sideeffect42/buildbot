@@ -120,6 +120,8 @@ class RemoteUserAuth(AuthBase):
         header = request.getHeader(self.header)
         if header is None:
             raise Error(403, b"missing http header " + self.header + b". Check your reverse proxy config!")
+        if isinstance(header, bytes):
+            header = header.decode()
         res = self.headerRegex.match(header)
         if res is None:
             raise Error(
