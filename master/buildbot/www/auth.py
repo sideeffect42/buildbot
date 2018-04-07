@@ -119,10 +119,10 @@ class RemoteUserAuth(AuthBase):
     def maybeAutoLogin(self, request):
         header = bytes2unicode(request.getHeader(self.header))
         if header is None:
-            raise Error(403, unicode2bytes("missing http header " + self.header + ". Check your reverse proxy config!"))
+            raise Error(403, b"missing http header " + unicode2bytes(self.header) + b". Check your reverse proxy config!")
         res = self.headerRegex.match(header)
         if res is None:
-            raise Error(403, unicode2bytes('http header does not match regex! "' + header + '" not matching ' + self.headerRegex.pattern))
+            raise Error(403, b'http header does not match regex! "' + unicode2bytes(header) + b'" not matching ' + unicode2bytes(self.headerRegex.pattern))
         session = request.getSession()
         if session.user_info != dict(res.groupdict()):
             session.user_info = dict(res.groupdict())
