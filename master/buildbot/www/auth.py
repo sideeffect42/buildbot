@@ -104,7 +104,7 @@ class NoAuth(AuthBase):
 
 class RemoteUserAuth(AuthBase):
     header = b"REMOTE_USER"
-    headerRegex = re.compile(r"(?P<username>[^ @]+)@(?P<realm>[^ @]+)")
+    headerRegex = re.compile(br"(?P<username>[^ @]+)@(?P<realm>[^ @]+)")
 
     def __init__(self, header=None, headerRegex=None, **kwargs):
         AuthBase.__init__(self, **kwargs)
@@ -117,12 +117,13 @@ class RemoteUserAuth(AuthBase):
 
     @defer.inlineCallbacks
     def maybeAutoLogin(self, request):
-        header = bytes2unicode(request.getHeader(self.header))
+        header = request.getHeader(self.header)
         if header is None:
-            raise Error(403, b"missing http header " + unicode2bytes(self.header) + b". Check your reverse proxy config!")
+            raise Error(403, b"missing http header " + self.header + b". Check your reverse proxy config!")
         res = self.headerRegex.match(header)
         if res is None:
-            raise Error(403, b'http header does not match regex! "' + unicode2bytes(header) + b'" not matching ' + unicode2bytes(self.headerRegex.pattern))
+            raise Error(
+                403, b'http header does not match regex! "' + header + b'" not matching ' + self.headerRegex.pattern)
         session = request.getSession()
         if session.user_info != dict(res.groupdict()):
             session.user_info = dict(res.groupdict())
