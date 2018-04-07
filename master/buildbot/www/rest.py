@@ -34,7 +34,6 @@ from buildbot.data import exceptions
 from buildbot.data import resultspec
 from buildbot.util import bytes2NativeString
 from buildbot.util import bytes2unicode
-from buildbot.util import bytes_string
 from buildbot.util import toJson
 from buildbot.util import unicode2bytes
 from buildbot.www import resource
@@ -357,9 +356,9 @@ class V2RootResource(resource.Resource):
 
     def encodeRaw(self, data, request):
         request.setHeader(b"content-type",
-                          bytes_string(data['mime-type'], '; charset=utf-8'))
+                          unicode2bytes(data['mime-type'] + '; charset=utf-8')
         request.setHeader(b"content-disposition",
-                          bytes_string('attachment; filename=', data['filename']))
+                          unicode2bytes('attachment; filename=' + data['filename']))
         request.write(unicode2bytes(data['raw']))
         return
 

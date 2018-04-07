@@ -36,7 +36,6 @@ from twisted.web.resource import IResource
 from zope.interface import implementer
 
 from buildbot.util import bytes2unicode
-from buildbot.util import bytes_string
 from buildbot.util import config
 from buildbot.util import unicode2bytes
 from buildbot.www import resource
@@ -120,10 +119,10 @@ class RemoteUserAuth(AuthBase):
     def maybeAutoLogin(self, request):
         header = bytes2unicode(request.getHeader(self.header))
         if header is None:
-            raise Error(403, bytes_string("missing http header ", self.header, ". Check your reverse proxy config!"))
+            raise Error(403, unicode2bytes("missing http header " + self.header + ". Check your reverse proxy config!"))
         res = self.headerRegex.match(header)
         if res is None:
-            raise Error(403, bytes_string('http header does not match regex! "', header, '" not matching ', self.headerRegex.pattern))
+            raise Error(403, unicode2bytes('http header does not match regex! "' + header + '" not matching ' + self.headerRegex.pattern))
         session = request.getSession()
         if session.user_info != dict(res.groupdict()):
             session.user_info = dict(res.groupdict())
