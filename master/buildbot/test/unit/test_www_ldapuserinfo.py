@@ -112,7 +112,7 @@ class LdapUserInfo(CommonTestCase):
             (('groupbase', 'groupMemberPattern', ['groupName']), {}),
         ])
         self.assertEqual(res, {'email': 'mee@too', 'full_name': 'me too',
-                               'groups': [], 'username': 'me'})
+                               'groups': [], 'username': b'me'})
 
     @defer.inlineCallbacks
     def test_updateUserInfoGroups(self):
@@ -123,7 +123,7 @@ class LdapUserInfo(CommonTestCase):
                                     ], []])
         res = yield self.userInfoProvider.getUserInfo("me")
         self.assertEqual(res, {'email': 'mee@too', 'full_name': 'me too',
-                               'groups': ["group", "group2"], 'username': 'me'})
+                               'groups': ["group", "group2"], 'username': b'me'})
 
     @defer.inlineCallbacks
     def test_updateUserInfoGroupsUnicodeDn(self):
@@ -141,7 +141,7 @@ class LdapUserInfo(CommonTestCase):
                                     ], []])
         res = yield self.userInfoProvider.getUserInfo("me")
         self.assertEqual(res, {'email': 'mee@too', 'full_name': 'me too',
-                               'groups': ["group", "group2"], 'username': 'me'})
+                               'groups': ["group", "group2"], 'username': b'me'})
 
         # and if dn is decoded, it also works with an str groupMemberPattern,
         # provided it's ASCII (can be decoded implicitly in any case)
@@ -154,7 +154,7 @@ class LdapUserInfo(CommonTestCase):
                                     ], []])
         res = yield self.userInfoProvider.getUserInfo("me")
         self.assertEqual(res, {'email': 'mee@too', 'full_name': 'me too',
-                               'groups': ["group", "group2"], 'username': 'me'})
+                               'groups': ["group", "group2"], 'username': b'me'})
 
     @defer.inlineCallbacks
     def test_getUserAvatar(self):
@@ -191,7 +191,7 @@ class LdapUserInfoNoGroups(CommonTestCase):
               ['accountEmail', 'accountFullName', 'myfield']), {}),
         ])
         self.assertEqual(res, {'email': 'mee@too', 'full_name': 'me too',
-                               'groups': [], 'username': 'me'})
+                               'groups': [], 'username': b'me'})
 
 
 class Config(unittest.TestCase):
