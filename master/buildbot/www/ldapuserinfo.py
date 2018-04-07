@@ -87,6 +87,7 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
         return c.response
 
     def getUserInfo(self, username):
+        username = unicode2bytes(username)
         def thd():
             c = self.connectLdap()
             infos = {'username': username}
