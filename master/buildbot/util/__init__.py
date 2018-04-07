@@ -273,6 +273,14 @@ def unicode2NativeString(x, encoding='utf-8', errors='strict'):
     return x
 
 
+def bytes_string(encoding='utf-8', errors='strict', *args):
+    return b''.join([unicode2bytes(arg, encoding, errors) for arg in args])
+
+
+def unicode_string(encoding='utf-8', errors='strict', *args):
+    return ''.join([bytes2unicode(arg, encoding, errors) for arg in args])
+
+
 _hush_pyflakes = [json]
 
 deprecatedModuleAttribute(
