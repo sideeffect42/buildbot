@@ -22,6 +22,7 @@ import ldap3
 from twisted.internet import threads
 
 from buildbot.util import flatten
+from buildbot.util import unicode2bytes
 from buildbot.www import auth
 from buildbot.www import avatar
 
