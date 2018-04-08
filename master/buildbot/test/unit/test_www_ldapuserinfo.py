@@ -26,8 +26,14 @@ import mock
 from twisted.internet import defer
 from twisted.trial import unittest
 
+def get_config_parameter(p):
+    params = {'DEFAULT_SERVER_ENCODING': 'utf-8'}
+    return params[p]
+
 fake_ldap = types.ModuleType('ldap3')
 fake_ldap.SEARCH_SCOPE_WHOLE_SUBTREE = 2
+fake_ldap.get_config_parameter = get_config_parameter
+
 with mock.patch.dict(sys.modules, {'ldap3': fake_ldap}):
     from buildbot.www import ldapuserinfo
 
