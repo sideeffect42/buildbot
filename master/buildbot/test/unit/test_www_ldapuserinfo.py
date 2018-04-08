@@ -26,9 +26,11 @@ import mock
 from twisted.internet import defer
 from twisted.trial import unittest
 
+
 def get_config_parameter(p):
     params = {'DEFAULT_SERVER_ENCODING': 'utf-8'}
     return params[p]
+
 
 fake_ldap = types.ModuleType('ldap3')
 fake_ldap.SEARCH_SCOPE_WHOLE_SUBTREE = 2
