@@ -155,16 +155,18 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
 
     def findAvatarMime(self, data):
         # http://en.wikipedia.org/wiki/List_of_file_signatures
-        if data.startswith("\xff\xd8\xff"):
+        if data.startswith(b"\xff\xd8\xff"):
             return ("image/jpeg", data)
-        if data.startswith("\x89PNG"):
+        if data.startswith(b"\x89PNG"):
             return ("image/png", data)
-        if data.startswith("GIF8"):
+        if data.startswith(b"GIF8"):
             return ("image/gif", data)
         # ignore unknown image format
         return None
 
     def getUserAvatar(self, user_email, size, defaultAvatarUrl):
+        user_email = bytes2unicode(user_email)
+
         def thd():
             c = self.connectLdap()
             pattern = self.avatarPattern % dict(email=user_email)
