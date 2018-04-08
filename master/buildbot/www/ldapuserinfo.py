@@ -27,6 +27,11 @@ from buildbot.www import auth
 from buildbot.www import avatar
 
 
+def ldap_bytes2unicode(x, errors='strict'):
+    ldap_encoding = ldap3.get_config_parameter('DEFAULT_SERVER_ENCODING')
+    return bytes2unicode(x, ldap_encoding, errors)
+
+
 class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
     name = 'ldap'
 
@@ -101,16 +106,13 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
             if len(res) != 1:
                 raise KeyError(
                     "ldap search \"%s\" returned %d results" % (pattern, len(res)))
-            dn, ldap_infos = res[0]['dn'], res[0]['raw_attributes']
-            if isinstance(dn, bytes):
-                dn = dn.decode('utf-8')
+            dn, ldap_infos = ldap_bytes2unicode(res[0]['dn']), res[0]['attributes']
 
             def getLdapInfo(x):
                 if isinstance(x, list):
                     x = x[0]
-                if isinstance(x, bytes):
-                    x = x.decode('utf-8')
-                return x
+                return ldap_bytes2unicode(x)
+
             infos['full_name'] = getLdapInfo(ldap_infos[self.accountFullName])
             infos['email'] = getLdapInfo(ldap_infos[self.accountEmail])
             for f in self.accountExtraFields:
@@ -125,10 +127,9 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
             pattern = self.groupMemberPattern % dict(dn=dn)
             res = self.search(c, self.groupBase, pattern,
                               attributes=[self.groupName])
-            _groups = flatten(
-                [group_infos['raw_attributes'][self.groupName] for group_infos in res])
-            infos['groups'] = [g if not isinstance(g, bytes) else g.decode('utf-8')
-                for g in _groups]
+            infos['groups'] = [ldap_bytes2unicode(g) for g in flatten(
+                [group_infos['attributes'][self.groupName] for group_infos in res])]
+
             return infos
         return threads.deferToThread(thd)
 
