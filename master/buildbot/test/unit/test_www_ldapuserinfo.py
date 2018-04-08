@@ -26,8 +26,14 @@ import mock
 from twisted.internet import defer
 from twisted.trial import unittest
 
+def get_config_parameter(p):
+    params = {'DEFAULT_SERVER_ENCODING': 'utf-8'}
+    return params[p]
+
 fake_ldap = types.ModuleType('ldap3')
 fake_ldap.SEARCH_SCOPE_WHOLE_SUBTREE = 2
+fake_ldap.get_config_parameter = get_config_parameter
+
 with mock.patch.dict(sys.modules, {'ldap3': fake_ldap}):
     from buildbot.www import ldapuserinfo
 
@@ -61,10 +67,16 @@ class CommonTestCase(unittest.TestCase):
         """To be implemented by subclasses"""
         raise NotImplementedError
 
-    def makeSearchSideEffect(self, ret):
-        ret = [[{'dn': i[0], 'raw_attributes': i[1]} for i in r]
+    def _makeSearchSideEffect(self, attribute_type, ret):
+        ret = [[{'dn': i[0], attribute_type: i[1]} for i in r]
              for r in ret]
         self.userInfoProvider.search.side_effect = ret
+
+    def makeSearchSideEffect(self, ret):
+        return self._makeSearchSideEffect('attributes', ret)
+
+    def makeRawSearchSideEffect(self, ret):
+        return self._makeSearchSideEffect('raw_attributes', ret)
 
     def assertSearchCalledWith(self, exp):
         got = self.userInfoProvider.search.call_args_list
@@ -158,13 +170,13 @@ class LdapUserInfo(CommonTestCase):
 
     @defer.inlineCallbacks
     def test_getUserAvatar(self):
-        self.makeSearchSideEffect([
-            [("cn", {"picture": ["\x89PNG lljklj"]})]])
+        self.makeRawSearchSideEffect([
+            [("cn", {"picture": [b"\x89PNG lljklj"]})]])
         res = yield self.userInfoProvider.getUserAvatar("me", 21, None)
         self.assertSearchCalledWith([
             (('accbase', 'avatar', ['picture']), {}),
         ])
-        self.assertEqual(res, ('image/png', '\x89PNG lljklj'))
+        self.assertEqual(res, ('image/png', b'\x89PNG lljklj'))
 
 
 class LdapUserInfoNoGroups(CommonTestCase):
