@@ -13,6 +13,19 @@
 #
 # Copyright Buildbot Team Members
 
+
+# NOTE regarding LDAP encodings:
+#
+# By default the encoding used in ldap3 is utf-8. The encoding is user-configurable, though.
+# For more information check ldap3's documentation on this topic:
+# http://ldap3.readthedocs.io/encoding.html
+#
+# It is recommended to use ldap3's auto-decoded values instead of working with
+# the `raw_*` attributes.
+# If still using the `raw_*` attributes make sure to decode them using the
+# correct encoding using the `ldap_bytes2unicode` helper function.
+
+
 from __future__ import absolute_import
 from __future__ import print_function
 from future.moves.urllib.parse import urlparse
@@ -28,6 +41,13 @@ from buildbot.www import avatar
 
 
 def ldap_bytes2unicode(x, errors='strict'):
+    # TODO: This function always uses ldap3's DEFAULT_SERVER_ENCODING for
+    #       decoding. According to ldap3's docs there exist LDAP servers that
+    #       use different encodings (e.g. Active Directory).
+    #       Because of a lack of such a server for testing, this function does
+    #       not consider the ADDITIONAL_SERVER_ENCODINGS.
+    #       Someone with access to an AD should improve upon this situation.
+
     ldap_encoding = ldap3.get_config_parameter('DEFAULT_SERVER_ENCODING')
     return bytes2unicode(x, ldap_encoding, errors)
 
