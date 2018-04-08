@@ -68,7 +68,7 @@ class CommonTestCase(unittest.TestCase):
         raise NotImplementedError
 
     def makeSearchSideEffect(self, ret):
-        ret = [[{'dn': i[0], 'raw_attributes': i[1]} for i in r]
+        ret = [[{'dn': i[0], 'attributes': i[1]} for i in r]
              for r in ret]
         self.userInfoProvider.search.side_effect = ret
 
