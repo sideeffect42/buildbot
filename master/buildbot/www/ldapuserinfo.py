@@ -130,7 +130,7 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
 
             def getLdapInfo(x):
                 if isinstance(x, list):
-                    x = x[0]
+                    x = x[0] if 0 < len(x) else None
                 return ldap_bytes2unicode(x)
 
             infos['full_name'] = getLdapInfo(ldap_infos[self.accountFullName])
