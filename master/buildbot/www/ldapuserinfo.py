@@ -20,8 +20,8 @@
 # For more information check ldap3's documentation on this topic:
 # http://ldap3.readthedocs.io/encoding.html
 #
-# It is recommended to use ldap3's auto-decoded values instead of working with
-# the `raw_*` attributes.
+# It is recommended to use ldap3's auto-decoded `attributes` values for
+# `unicode` and `raw_*` attributes for `bytes`.
 
 
 from __future__ import absolute_import
@@ -79,7 +79,6 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
         if accountExtraFields is None:
             accountExtraFields = []
         self.accountExtraFields = accountExtraFields
-        ldap_encoding = ldap3.get_config_parameter('DEFAULT_SERVER_ENCODING')
 
 
     def connectLdap(self):
