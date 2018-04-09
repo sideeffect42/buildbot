@@ -38,8 +38,6 @@ from buildbot.www import auth
 from buildbot.www import avatar
 
 
-
-
 class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
     name = 'ldap'
 
@@ -79,7 +77,7 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
         if accountExtraFields is None:
             accountExtraFields = []
         self.accountExtraFields = accountExtraFields
-
+        self.ldap_encoding = ldap3.get_config_parameter('DEFAULT_SERVER_ENCODING')
 
     def connectLdap(self):
         server = urlparse(self.uri)
