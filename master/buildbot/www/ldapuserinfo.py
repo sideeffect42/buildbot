@@ -128,16 +128,16 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
                     "ldap search \"%s\" returned %d results" % (pattern, len(res)))
             dn, ldap_infos = ldap_bytes2unicode(res[0]['dn']), res[0]['attributes']
 
-            def getLdapInfo(x):
+            def getFirstLdapInfo(x):
                 if isinstance(x, list):
                     x = x[0] if x else None
                 return ldap_bytes2unicode(x)
 
-            infos['full_name'] = getLdapInfo(ldap_infos[self.accountFullName])
-            infos['email'] = getLdapInfo(ldap_infos[self.accountEmail])
+            infos['full_name'] = getFirstLdapInfo(ldap_infos[self.accountFullName])
+            infos['email'] = getFirstLdapInfo(ldap_infos[self.accountEmail])
             for f in self.accountExtraFields:
                 if f in ldap_infos:
-                    infos[f] = getLdapInfo(ldap_infos[f])
+                    infos[f] = getFirstLdapInfo(ldap_infos[f])
 
             if self.groupMemberPattern is None:
                 infos['groups'] = []
