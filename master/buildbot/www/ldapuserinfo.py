@@ -20,10 +20,8 @@
 # For more information check ldap3's documentation on this topic:
 # http://ldap3.readthedocs.io/encoding.html
 #
-# It is recommended to use ldap3's auto-decoded values instead of working with
-# the `raw_*` attributes.
-# If still using the `raw_*` attributes make sure to decode them using the
-# correct encoding using the `ldap_bytes2unicode` helper function.
+# It is recommended to use ldap3's auto-decoded `attributes` values for
+# `unicode` and `raw_*` attributes for `bytes`.
 
 
 from __future__ import absolute_import
@@ -38,18 +36,6 @@ from buildbot.util import bytes2unicode
 from buildbot.util import flatten
 from buildbot.www import auth
 from buildbot.www import avatar
-
-
-def ldap_bytes2unicode(x, errors='strict'):
-    # TODO: This function always uses ldap3's DEFAULT_SERVER_ENCODING for
-    #       decoding. According to ldap3's docs there exist LDAP servers that
-    #       use different encodings (e.g. Active Directory).
-    #       Because of a lack of such a server for testing, this function does
-    #       not consider the ADDITIONAL_SERVER_ENCODINGS.
-    #       Someone with access to an AD should improve upon this situation.
-
-    ldap_encoding = ldap3.get_config_parameter('DEFAULT_SERVER_ENCODING')
-    return bytes2unicode(x, ldap_encoding, errors)
 
 
 class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
@@ -91,6 +77,7 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
         if accountExtraFields is None:
             accountExtraFields = []
         self.accountExtraFields = accountExtraFields
+        self.ldap_encoding = ldap3.get_config_parameter('DEFAULT_SERVER_ENCODING')
 
     def connectLdap(self):
         server = urlparse(self.uri)
@@ -126,12 +113,12 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
             if len(res) != 1:
                 raise KeyError(
                     "ldap search \"%s\" returned %d results" % (pattern, len(res)))
-            dn, ldap_infos = ldap_bytes2unicode(res[0]['dn']), res[0]['attributes']
+            dn, ldap_infos = res[0]['dn'], res[0]['attributes']
 
             def getFirstLdapInfo(x):
                 if isinstance(x, list):
                     x = x[0] if x else None
-                return ldap_bytes2unicode(x)
+                return x
 
             infos['full_name'] = getFirstLdapInfo(ldap_infos[self.accountFullName])
             infos['email'] = getFirstLdapInfo(ldap_infos[self.accountEmail])
@@ -147,8 +134,8 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
             pattern = self.groupMemberPattern % dict(dn=dn)
             res = self.search(c, self.groupBase, pattern,
                               attributes=[self.groupName])
-            infos['groups'] = [ldap_bytes2unicode(g) for g in flatten(
-                [group_infos['attributes'][self.groupName] for group_infos in res])]
+            infos['groups'] = flatten([group_infos['attributes'][self.groupName]
+                                      for group_infos in res])
 
             return infos
         return threads.deferToThread(thd)
