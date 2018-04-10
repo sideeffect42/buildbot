@@ -1,0 +1,1 @@
+Fixed list out of bounds access when trying to load the value of an empty LDAP attribute
