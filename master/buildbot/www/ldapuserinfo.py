@@ -134,8 +134,8 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
             pattern = self.groupMemberPattern % dict(dn=dn)
             res = self.search(c, self.groupBase, pattern,
                               attributes=[self.groupName])
-            infos['groups'] = [g for g in flatten(
-                [group_infos['attributes'][self.groupName] for group_infos in res])]
+            infos['groups'] = flatten([group_infos['attributes'][self.groupName]
+                                      for group_infos in res])
 
             return infos
         return threads.deferToThread(thd)
