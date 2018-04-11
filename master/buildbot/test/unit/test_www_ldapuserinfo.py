@@ -179,7 +179,7 @@ class LdapUserInfo(CommonTestCase):
         self.assertSearchCalledWith([
             (('accbase', 'avatar', ['picture']), {}),
         ])
-        return res
+        defer.returnValue(res)
 
     @defer.inlineCallbacks
     def test_getUserAvatarPNG(self):
