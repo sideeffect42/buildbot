@@ -142,7 +142,7 @@ class LdapUserInfo(CommonTestCase):
     @defer.inlineCallbacks
     def test_updateUserInfoGroupsUnicodeDn(self):
         # In case of non Ascii DN, ldap3 lib returns an UTF-8 str
-        dn = "cn=Sébastien,dc=example,dc=org"
+        dn = u"cn=Sébastien,dc=example,dc=org"
         # If groupMemberPattern is an str, and dn is not decoded,
         # the resulting filter will be an str, leading to UnicodeDecodeError
         # in ldap3.protocol.convert.validate_assertion_value()
