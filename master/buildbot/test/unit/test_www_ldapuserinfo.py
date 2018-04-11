@@ -157,19 +157,6 @@ class LdapUserInfo(CommonTestCase):
         self.assertEqual(res, {'email': 'mee@too', 'full_name': 'me too',
                                'groups': ["group", "group2"], 'username': 'me'})
 
-        # and if dn is decoded, it also works with an str groupMemberPattern,
-        # provided it's ASCII (can be decoded implicitly in any case)
-        # promotion occurs because of the % operator
-        self.userInfoProvider.groupMemberPattern = '(member=%(dn)s)'
-        self.makeSearchSideEffect([[(dn, {"accountFullName": "me too",
-                                          "accountEmail": "mee@too"})],
-                                   [("cn", {"groupName": ["group"]}),
-                                    ("cn", {"groupName": ["group2"]})
-                                    ], []])
-        res = yield self.userInfoProvider.getUserInfo("me")
-        self.assertEqual(res, {'email': 'mee@too', 'full_name': 'me too',
-                               'groups': ["group", "group2"], 'username': 'me'})
-
     @defer.inlineCallbacks
     def _getUserAvatar(self, mimeTypeAndData):
         (mimeType, data) = mimeTypeAndData
